@@ -1,10 +1,12 @@
+import 'package:api_sqflite/common/widget/widget.dart';
+import 'package:api_sqflite/model/avtarusermodel.dart';
 import 'package:api_sqflite/screen/home_screen/homescreen_viewmodel.dart';
 import 'package:api_sqflite/main.dart';
 import 'package:api_sqflite/model/usermodel.dart';
 import 'package:api_sqflite/services/db_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,6 +19,7 @@ class HomePageState extends State<HomePage> {
   Future<List<UserModel>> dbUser;
   int userId;
   UserModel userModel;
+  AvtarUserModel avtarUserModel;
   bool isLoading = false;
 
   @override
@@ -42,15 +45,16 @@ class HomePageState extends State<HomePage> {
         children: [
           ListView(
             children: [
-              TextFormField(
+              getUserDetailsField(
                 controller: userIdController,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(2),
-                ],
               ),
-              ElevatedButton(onPressed: showDetails, child: Text('Get Record')),
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 50),
+                child: getUserDetailsButton(onTap: showDetails),
+              ),
+              SizedBox(height: 20),
+              Divider(),
               userModel == null
                   ? userData()
                   : ListView.separated(
@@ -100,13 +104,21 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  showDetails() {
-    userId = int.parse(userIdController.text);
-    print('Print details of user --> $userId');
-    setState(() {
-      isLoading = true;
-    });
-    homeScreenViewModel.userData(userId);
+  showDetails() async {
+    if (userIdController.text.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Enter User Id to fetch records.',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } else {
+      userId = int.parse(userIdController.text);
+      print('Print details of user --> $userId');
+      setState(() {
+        isLoading = true;
+      });
+      homeScreenViewModel.userData(userId);
+    }
   }
 
   addUser() {
@@ -119,6 +131,8 @@ class HomePageState extends State<HomePage> {
   deleteUser(id) {
     var userData = DBProvider.dbProvider.deleteUser(id);
     print('UserData --> $userData');
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(builder: (context) => HomePage()), (route) => false);
   }
 
   userData() {

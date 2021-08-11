@@ -1,8 +1,9 @@
+import 'package:api_sqflite/common/constant/string.dart';
 import 'package:api_sqflite/model/usermodel.dart';
 import 'package:http/http.dart' as http;
 
 getUserDetails(item) async {
-  String url = 'https://jsonplaceholder.typicode.com/albums/$item';
+  String url = '${ApiResources.HttpBaseUrl}/albums/$item';
   print('Url --> $url');
 
   try {
